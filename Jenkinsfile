@@ -7,7 +7,7 @@ pipeline {
         // Sử dụng Jenkins Credentials để lấy AWS credentials
         AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS-Secret-Access-Key')
-        
+        AWS_DEFAULT_REGION = 'sa-east-1'
     }
 
     stages {
