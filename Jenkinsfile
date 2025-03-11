@@ -2,13 +2,13 @@ pipeline {
     agent any
 
      environment {
-    //     AWS_ACCESS_KEY_ID = ${Access_Key}''
-    //     AWS_SECRET_ACCESS_KEY = ${AWS_SECRET_ACCESS_KEY}''
-    //     AWS_DEFAULT_REGION = ${region}'sa-east-1'
-        GITHUB_CREDENTIALS = credentials('GitHub-PAT-Full-Access-4')
-    //     S3_BUCKET = ${s3}'duy-mock-project'
-    //     TERRAFORM_TFVARS_PATH = ${Path}'networking/terraform.tfvars'
-     }
+        GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
+
+        // Sử dụng Jenkins Credentials để lấy AWS credentials
+        AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS-Secret-Access-Key')
+        
+    }
 
     stages {
         stage('Checkout') {
@@ -16,7 +16,7 @@ pipeline {
                 script {
                     checkout([$class: 'GitSCM', 
                               branches: [[name: '*/main']], 
-                              userRemoteConfigs: [[url: 'https://github.com/Zudypubg/Terraform-mock-project.git', 
+                              userRemoteConfigs: [[url: 'https://github.com/Zudypubg/mock-project.git', 
                                                   credentialsId: 'GitHub-PAT-Full-Access-4']]])
                 }
             }
