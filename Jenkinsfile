@@ -1,13 +1,19 @@
 pipeline {
     agent any
 
-     environment {
+    
+
+    environment {
+        // Sử dụng Jenkins Credentials để lấy GitHub PAT
         GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
 
         // Sử dụng Jenkins Credentials để lấy AWS credentials
         AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS-Secret-Access-Key')
-        AWS_DEFAULT_REGION = 'sa-east-1'
+        AWS_DEFAULT_REGION = 'your-aws-region'
+
+        // Work directory
+        WORK_DIR = "environments/dev"
     }
 
     stages {
@@ -16,8 +22,18 @@ pipeline {
                 script {
                     checkout([$class: 'GitSCM', 
                               branches: [[name: '*/main']], 
-                              userRemoteConfigs: [[url: 'https://github.com/Zudypubg/mock-project.git', 
-                                                  credentialsId: 'GitHub-PAT-Full-Access-4']]])
+                              userRemoteConfigs: [[url: "https://${GITHUB_PAT}@github.com/Zudypubg/Terraform-mock-project.git"]]])
+                }
+            }
+        }
+
+        stage('Prepare Work Directory') {
+            steps {
+                script {
+                    // Tạo thư mục work directory nếu chưa tồn tại
+                    sh """
+                        mkdir -p ${WORK_DIR}
+                    """
                 }
             }
         }
@@ -25,11 +41,10 @@ pipeline {
         stage('Download terraform.tfvars from S3') {
             steps {
                 script {
-                    dir("${work-directory}") {
-                        sh """
-                        aws s3 cp s3://${S3_BUCKET}/${TERRAFORM_TFVARS_PATH} ./terraform.tfvars
-                        """
-                    }
+                    // Tải file terraform.tfvars từ S3 bucket
+                    sh """
+                        aws s3 cp s3://duy-mock-project/${params.ENVIRONMENT}/terraform.tfvars ${WORK_DIR}/terraform.tfvars
+                    """
                 }
             }
         }
@@ -37,7 +52,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    dir("${work-directory}") {
+                    dir(WORK_DIR) {
                         sh """
                             terraform init
                         """
@@ -49,7 +64,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    dir("${work-directory}") {
+                    dir(WORK_DIR) {
                         sh """
                             terraform plan -out=tfplan
                         """
@@ -61,9 +76,11 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 script {
-                    sh """
-                        terraform apply -auto-approve tfplan
-                    """
+                    dir(WORK_DIR) {
+                        sh """
+                            terraform apply -auto-approve tfplan
+                        """
+                    }
                 }
             }
         }
