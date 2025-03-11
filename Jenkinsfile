@@ -25,9 +25,11 @@ pipeline {
         stage('Download terraform.tfvars from S3') {
             steps {
                 script {
-                    sh """
+                    dir("${work-directory}") {
+                        sh """
                         aws s3 cp s3://${S3_BUCKET}/${TERRAFORM_TFVARS_PATH} ./terraform.tfvars
-                    """
+                        """
+                    }
                 }
             }
         }
@@ -35,9 +37,11 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    sh """
-                        terraform init
-                    """
+                    dir("${work-directory}") {
+                        sh """
+                            terraform init
+                        """
+                    }
                 }
             }
         }
@@ -45,9 +49,11 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 script {
-                    sh """
-                        terraform plan -out=tfplan
-                    """
+                    dir("${work-directory}") {
+                        sh """
+                            terraform plan -out=tfplan
+                        """
+                    }
                 }
             }
         }
