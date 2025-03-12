@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         // Sử dụng Jenkins Credentials để lấy GitHub PAT
-        //GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
+        GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
 
         // Sử dụng Jenkins Credentials để lấy AWS credentials
         AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
@@ -22,7 +22,7 @@ pipeline {
                 script {
                     checkout([$class: 'GitSCM', 
                               branches: [[name: '*/main']], 
-                              userRemoteConfigs: [[url: "git@github.com:Zudypubg/mock-project.git"]]])
+                              userRemoteConfigs: [[url: "https://${GITHUB_PAT}@github.com/Zudypubg/mock-project.git"]]])
                 }
             }
         }
