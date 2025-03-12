@@ -1,86 +1,53 @@
 pipeline {
     agent any
 
-    
+    parameters {
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select the action to perform')
+    }
 
     environment {
-        // Sử dụng Jenkins Credentials để lấy GitHub PAT
-        //GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
-
-        // Sử dụng Jenkins Credentials để lấy AWS credentials
-        AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS-Secret-Access-Key')
-        AWS_DEFAULT_REGION = 'your-aws-region'
-
-        // Work directory
-        WORK_DIR = "environments/dev"
+        AWS_ACCESS_KEY_ID     = credentials('Aws-Access-Key-Id')
+        AWS_SECRET_ACCESS_KEY = credentials('Aws-Secret-Access-Key')
+        AWS_DEFAULT_REGION    = 'sa-east-1'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    checkout([$class: 'GitSCM', 
-                              branches: [[name: '*/main']], 
-                              userRemoteConfigs: [[url: "git@github.com:Zudypubg/mock-project.git"]]])
-                }
+                git branch: 'main', url: 'https://github.com/CodeSagarOfficial/jenkins-scripts.git'
             }
         }
-
-        stage('Download terraform.tfvars from S3') {
+        stage('Terraform init') {
             steps {
-                script {
-                    // Tải file terraform.tfvars từ S3 bucket
-                    sh """
-                        aws s3 cp s3://duy-mock-project/${params.ENVIRONMENT}/terraform.tfvars ${WORK_DIR}/terraform.tfvars
-                    """
-                }
+                sh 'terraform init'
             }
         }
-
-        stage('Terraform Init') {
+        stage('Plan') {
+            steps {
+                sh 'terraform plan -out tfplan'
+                sh 'terraform show -no-color tfplan > tfplan.txt'
+            }
+        }
+        stage('Apply / Destroy') {
             steps {
                 script {
-                    dir(WORK_DIR) {
-                        sh """
-                            terraform init
-                        """
+                    if (params.action == 'apply') {
+                        if (!params.autoApprove) {
+                            def plan = readFile 'tfplan.txt'
+                            input message: "Do you want to apply the plan?",
+                            parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                        }
+
+                        sh 'terraform ${action} -input=false tfplan'
+                    } else if (params.action == 'destroy') {
+                        sh 'terraform ${action} --auto-approve'
+                    } else {
+                        error "Invalid action selected. Please choose either 'apply' or 'destroy'."
                     }
                 }
             }
         }
 
-        stage('Terraform Plan') {
-            steps {
-                script {
-                    dir(WORK_DIR) {
-                        sh """
-                            terraform plan -out=tfplan
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    dir(WORK_DIR) {
-                        sh """
-                            terraform apply -auto-approve tfplan
-                        """
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Terraform apply completed successfully!'
-        }
-        failure {
-            echo 'Terraform apply failed!'
-        }
     }
 }
