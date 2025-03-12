@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         // Sử dụng Jenkins Credentials để lấy GitHub PAT
-        GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
+        //GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
 
         // Sử dụng Jenkins Credentials để lấy AWS credentials
         AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
@@ -22,18 +22,7 @@ pipeline {
                 script {
                     checkout([$class: 'GitSCM', 
                               branches: [[name: '*/main']], 
-                              userRemoteConfigs: [[url: "https://${GITHUB_PAT}@github.com/Zudypubg/Terraform-mock-project.git"]]])
-                }
-            }
-        }
-
-        stage('Prepare Work Directory') {
-            steps {
-                script {
-                    // Tạo thư mục work directory nếu chưa tồn tại
-                    sh """
-                        mkdir -p ${WORK_DIR}
-                    """
+                              userRemoteConfigs: [[url: "git@github.com:Zudypubg/mock-project.git"]]])
                 }
             }
         }
