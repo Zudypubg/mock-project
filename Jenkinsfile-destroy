@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    
+
+    environment {
+        // Sử dụng Jenkins Credentials để lấy GitHub PAT
+        GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
+
+        // Sử dụng Jenkins Credentials để lấy AWS credentials
+        AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS-Secret-Access-Key')
+        AWS_DEFAULT_REGION = 'sa-east-1'
+
+        // Work directory
+        WORK_DIR = "environments/dev"
+    }
+
+    stages {
+        
+
+        stage('Terraform destroy') {
+            steps {
+                script {
+                    dir(WORK_DIR) {
+                        sh """
+                            terraform destroy -lock=false -auto-approve tfplan 
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform destroy completed successfully!'
+        }
+        failure {
+            echo 'Terraform apply failed!'
+        }
+    }
+}
