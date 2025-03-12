@@ -73,7 +73,7 @@ pipeline {
                 script {
                     dir(WORK_DIR) {
                         sh """
-                            terraform apply -auto-approve tfplan -lock=false
+                            terraform apply -lock=false -auto-approve tfplan 
                         """
                     }
                 }
