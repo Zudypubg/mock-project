@@ -26,6 +26,13 @@ pipeline {
                 }
             }
         }
+        stages {
+        stage('Check AWS CLI') {
+            steps {
+                sh 'export PATH=$PATH:/usr/local/bin && aws --version'
+            }
+        }
+    }
 
         stage('Download terraform.tfvars from S3') {
             steps {
