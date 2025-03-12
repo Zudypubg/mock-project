@@ -61,7 +61,7 @@ pipeline {
                 script {
                     dir(WORK_DIR) {
                         sh """
-                            terraform plan -out=tfplan
+                            terraform plan -out=tfplan -lock=false
                         """
                     }
                 }
