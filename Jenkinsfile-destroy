@@ -17,7 +17,45 @@ pipeline {
     }
 
     stages {
-        
+stage('Checkout') {
+            steps {
+                script {
+                    checkout([$class: 'GitSCM', 
+                              branches: [[name: '*/main']], 
+                              userRemoteConfigs: [[url: "https://${GITHUB_PAT}@github.com/Zudypubg/mock-project.git"]]])
+                }
+            }
+        }
+    
+        stage('Check AWS CLI') {
+            steps {
+                sh 'export PATH=$PATH:/usr/local/bin && aws --version'
+            }
+        }
+    
+        stage('Download terraform.tfvars from S3') {
+            steps {
+                script {
+                    // Tải file terraform.tfvars từ S3 bucket
+                    sh """
+                        aws s3 cp s3://duy-mock-project/networking/terraform.tfvars ${WORK_DIR}/terraform.tfvars
+                    """
+                }
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    dir(WORK_DIR) {
+                        sh """
+                            terraform init
+                        """
+                    }
+                }
+            }
+        }
+
 
         stage('Terraform destroy') {
             steps {
