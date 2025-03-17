@@ -24,7 +24,7 @@ pipeline {
                 script {
                     dir(WORK_DIR) {
                         sh """
-                            terraform destroy -lock=false -auto-approve tfplan 
+                            terraform destroy -lock=false -auto-approve 
                         """
                     }
                 }
