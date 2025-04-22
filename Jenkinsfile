@@ -40,7 +40,7 @@ pipeline {
                 script {
                     // Tải file terraform.tfvars từ S3 bucket
                     sh """
-                        aws s3 cp s3://duy-mock-project/networking/terraform.tfvars ${WORK_DIR}/terraform.tfvars
+                        aws s3 cp s3://duy-s3-bucket-project/networking/terraform.tfvars ${WORK_DIR}/terraform.tfvars
                     """
                 }
             }
