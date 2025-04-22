@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket         = "duy-mock-project"
+    bucket         = "duy-mockproject"
     key            = "networking/terraform.tfstate"
-    region         = "sa-east-1"
+    region         = "ap-southeast-1"
     encrypt        = true
     dynamodb_table = "terraform-lock"
   }
