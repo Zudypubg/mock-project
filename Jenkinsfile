@@ -5,12 +5,12 @@ pipeline {
 
     environment {
         // Sử dụng Jenkins Credentials để lấy GitHub PAT
-        GITHUB_PAT = credentials('GitHub-PAT-Full-Access-4')
+        GITHUB_PAT = credentials('GitHub-PAT-Full-Access-5')
 
         // Sử dụng Jenkins Credentials để lấy AWS credentials
         AWS_ACCESS_KEY_ID = credentials('AWS-Access-Key-ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS-Secret-Access-Key')
-        AWS_DEFAULT_REGION = 'sa-east-1'
+        AWS_DEFAULT_REGION = 'ap-southeast-1'
 
         // Work directory
         WORK_DIR = "environments/dev"
