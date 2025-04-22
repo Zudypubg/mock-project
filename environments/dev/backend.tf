@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "duy-mockproject"
+    bucket         = "duy-s3-bucket-project"
     key            = "networking/terraform.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
